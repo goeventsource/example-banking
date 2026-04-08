@@ -2,18 +2,20 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/google/uuid"
 
-	banking "github.com/goeventsource/example-banking"
-	binInternal "github.com/goeventsource/example-banking/cmd/internal"
-	"github.com/goeventsource/example-banking/internal"
 	"github.com/goeventsource/goeventsource"
 	"github.com/goeventsource/pgx"
 	"github.com/goeventsource/pgx/pgxtest"
+
+	banking "github.com/goeventsource/example-banking"
+	binInternal "github.com/goeventsource/example-banking/cmd/internal"
+	"github.com/goeventsource/example-banking/internal"
 )
 
 var factoryFn = func(id uuid.UUID, ver goeventsource.Version) *banking.Account {
@@ -22,41 +24,51 @@ var factoryFn = func(id uuid.UUID, ver goeventsource.Version) *banking.Account {
 	}
 }
 
-func main() {
-	ctx := context.Background()
+func domainEventCodecs() map[goeventsource.DomainEventName]goeventsource.DomainEventEncodeDecoder {
+	m := make(map[goeventsource.DomainEventName]goeventsource.DomainEventEncodeDecoder)
+	m[banking.AccountWasOpenedV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasOpenedV1]()
+	m[banking.AccountWasActivatedV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasActivatedV1]()
+	m[banking.AccountBalanceWasDepositedV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasDepositedV1]()
+	m[banking.AccountBalanceCurrencyExchangeWasDepositedV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasDepositedV1]()
+	m[banking.AccountBalanceWasWithdrewV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasWithdrewV1]()
+	m[banking.AccountBalanceCurrencyExchangeWasWithdrewV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasWithdrewV1]()
+	m[banking.AccountWasClosedV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasClosedV1]()
+	return m
+}
+
+func run(ctx context.Context) error {
 	db, cleanup, err := pgxtest.NewDemoPool(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("demo pool: %w", err)
 	}
 	defer cleanup()
 
 	cfg := pgxtest.NewRepositoryConfig(db, factoryFn)
-
-	cfg.StoreConfig.Codec = goeventsource.NewDomainEventEncodeDecoderWrapper(map[goeventsource.DomainEventName]goeventsource.DomainEventEncodeDecoder{
-		banking.AccountWasOpenedV1{}.DomainEventName():                           goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasOpenedV1](),
-		banking.AccountWasActivatedV1{}.DomainEventName():                        goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasActivatedV1](),
-		banking.AccountBalanceWasDepositedV1{}.DomainEventName():                 goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasDepositedV1](),
-		banking.AccountBalanceCurrencyExchangeWasDepositedV1{}.DomainEventName(): goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasDepositedV1](),
-		banking.AccountBalanceWasWithdrewV1{}.DomainEventName():                  goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasWithdrewV1](),
-		banking.AccountBalanceCurrencyExchangeWasWithdrewV1{}.DomainEventName():  goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasWithdrewV1](),
-		banking.AccountWasClosedV1{}.DomainEventName():                           goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasClosedV1](),
-	})
+	cfg.Codec = goeventsource.NewDomainEventEncodeDecoderWrapper(domainEventCodecs())
 
 	codec := banking.NewRootEncodeDecoder(factoryFn)
+	const snapshotEveryNVersions uint64 = 3
 	snapCfg := pgxtest.NewSnapshotterConfig(
 		db,
 		codec,
-		goeventsource.SnapshotterWriteStrategyByVersionStep[uuid.UUID, *banking.Account](goeventsource.Version(3)),
+		goeventsource.SnapshotterWriteStrategyByVersionStep[uuid.UUID, *banking.Account](goeventsource.Version(snapshotEveryNVersions)),
 	)
 	snap, err := pgxtest.NewSnapshotter(snapCfg)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("snapshotter: %w", err)
 	}
 	cfg.Opts = append(cfg.Opts, pgx.WithSnapshotterOpt(snap))
 
 	repo, _, err := pgxtest.NewRepository(cfg)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("repository: %w", err)
 	}
 	svc := internal.NewService(repo, nil)
 
@@ -67,6 +79,13 @@ func main() {
 		addr = ":" + p
 	}
 	if err := http.ListenAndServe(addr, srv); err != http.ErrServerClosed {
-		panic(err)
+		return err
+	}
+	return nil
+}
+
+func main() {
+	if err := run(context.Background()); err != nil {
+		log.Fatal(err)
 	}
 }

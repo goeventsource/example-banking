@@ -8,7 +8,7 @@ import (
 	"github.com/Rhymond/go-money"
 	"github.com/google/uuid"
 
-	"github.com/goeventsource/example-banking"
+	banking "github.com/goeventsource/example-banking"
 )
 
 var (

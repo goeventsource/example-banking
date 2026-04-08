@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Rhymond/go-money"
-	"github.com/google/uuid"
 	"log/slog"
 
-	"github.com/goeventsource/example-banking"
+	"github.com/Rhymond/go-money"
+	"github.com/google/uuid"
+
+	banking "github.com/goeventsource/example-banking"
 
 	"github.com/goeventsource/example-banking/internal"
 )
@@ -50,7 +51,7 @@ func (s *Server) OpenAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not decode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not decode")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -64,21 +65,21 @@ func (s *Server) OpenAccount(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := s.svc.OpenAccount(ctx, *currency)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not open account")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not open account")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resBody, err := s.codec.Encode(acc)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not encode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not encode")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	if _, err := w.Write(resBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not write response")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not write response")
 		return
 	}
 }
@@ -92,7 +93,7 @@ func (s *Server) Activate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not decode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not decode")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -105,20 +106,20 @@ func (s *Server) Activate(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := s.svc.Activate(ctx, reqBody.ID, reqBody.AgentID)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not activate")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not activate")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resBody, err := s.codec.Encode(acc)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not encode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not encode")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := w.Write(resBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not write response")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not write response")
 		return
 	}
 }
@@ -133,7 +134,7 @@ func (s *Server) Withdraw(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not decode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not decode")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -148,20 +149,20 @@ func (s *Server) Withdraw(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := s.svc.Withdraw(ctx, reqBody.ID, reqBody.Amount, *currency)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not withdraw")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not withdraw")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resBody, err := s.codec.Encode(acc)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not encode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not encode")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := w.Write(resBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not write response")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not write response")
 		return
 	}
 }
@@ -176,7 +177,7 @@ func (s *Server) Deposit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not decode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not decode")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -191,20 +192,20 @@ func (s *Server) Deposit(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := s.svc.Deposit(ctx, reqBody.ID, reqBody.Amount, *currency)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not deposit")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not deposit")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resBody, err := s.codec.Encode(acc)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not encode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not encode")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := w.Write(resBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not write response")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not write response")
 		return
 	}
 }
@@ -218,7 +219,7 @@ func (s *Server) Close(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not decode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not decode")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -231,20 +232,20 @@ func (s *Server) Close(w http.ResponseWriter, r *http.Request) {
 
 	acc, err := s.svc.Close(ctx, reqBody.ID, reqBody.AgentID)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not close")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not close")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resBody, err := s.codec.Encode(acc)
 	if err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not encode")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not encode")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := w.Write(resBody); err != nil {
-		s.logger.With(slog.String("err", err.Error())).ErrorContext(ctx, "could not write response")
+		s.logger.With(slog.Any("err", err)).ErrorContext(ctx, "could not write response")
 		return
 	}
 }
