@@ -16,6 +16,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: goeventsource/workflow/.github/actions/satellite-build@main
@@ -24,6 +26,8 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: goeventsource/workflow/.github/actions/satellite-lint@main
