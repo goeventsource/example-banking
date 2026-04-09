@@ -16,15 +16,15 @@
 ## Install (to run or study)
 
 ```bash
-git clone <your-fork-or-mirror>
+git clone https://github.com/goeventsource/example-banking.git
 cd example-banking
 go mod download
 ```
 
 This module depends on:
 
-- `github.com/goeventsource/goeventsource` — core
-- `github.com/goeventsource/pgx` — PostgreSQL + [pgxtest](../pgx/README.md)
+- [`github.com/goeventsource/goeventsource`](https://github.com/goeventsource/goeventsource) — core
+- [`github.com/goeventsource/pgx`](https://github.com/goeventsource/pgx) — PostgreSQL + pgxtest
 - `github.com/google/uuid`, `github.com/Rhymond/go-money` — domain helpers
 
 ## Run the HTTP server
@@ -47,7 +47,7 @@ The process listens on `:80` (adjust in `main` if needed). For production you wo
 6. **Service** — `internal.NewService(repo, exchanger)`; the sample passes `nil` exchanger (no currency integration in the demo).
 7. **HTTP** — `cmd/internal.New(svc, codec)` exposes handlers using the same root codec.
 
-For production-shaped SQL wiring without test helpers, follow [../pgx/README.md](../pgx/README.md) and call `pgx.NewStore` / `pgx.NewRepository` directly.
+For production-shaped SQL wiring without test helpers, see the [`pgx`](https://github.com/goeventsource/pgx) module and call `pgx.NewStore` / `pgx.NewRepository` directly.
 
 ## Layout
 
@@ -65,7 +65,3 @@ For production-shaped SQL wiring without test helpers, follow [../pgx/README.md]
 ```bash
 go test ./...
 ```
-
-## Local `replace` directives
-
-[go.mod](go.mod) may point `goeventsource` and `pgx` at sibling paths for development—remove after modules are public; see [../README.md](../README.md).
