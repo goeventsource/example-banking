@@ -49,15 +49,15 @@ func (e AccountBalanceCurrencyExchangeWasDepositedV1) DomainEventName() goevents
 	return "banking_account_balance_currency_exchange_was_deposited_v1"
 }
 
-type AccountBalanceWasWithdrewV1 struct {
+type AccountBalanceWasWithdrawnV1 struct {
 	Amount money.Amount
 }
 
-func (e AccountBalanceWasWithdrewV1) DomainEventName() goeventsource.DomainEventName {
-	return "banking_account_balance_was_withdrew_v1"
+func (e AccountBalanceWasWithdrawnV1) DomainEventName() goeventsource.DomainEventName {
+	return "banking_account_balance_was_withdrawn_v1"
 }
 
-type AccountBalanceCurrencyExchangeWasWithdrewV1 struct {
+type AccountBalanceCurrencyExchangeWasWithdrawnV1 struct {
 	FromAmount   money.Amount
 	FromCurrency money.Currency
 	Name         ExchangerName
@@ -66,8 +66,8 @@ type AccountBalanceCurrencyExchangeWasWithdrewV1 struct {
 	ToCurrency   money.Currency
 }
 
-func (e AccountBalanceCurrencyExchangeWasWithdrewV1) DomainEventName() goeventsource.DomainEventName {
-	return "banking_account_balance_currency_exchange_was_withdrew_v1"
+func (e AccountBalanceCurrencyExchangeWasWithdrawnV1) DomainEventName() goeventsource.DomainEventName {
+	return "banking_account_balance_currency_exchange_was_withdrawn_v1"
 }
 
 type AccountWasClosedV1 struct {

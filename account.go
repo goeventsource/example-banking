@@ -109,7 +109,7 @@ func (a *Account) Withdraw(amount money.Amount, currency money.Currency) error {
 		return fmt.Errorf("%w: not enough balance", ErrAccountWithdraw)
 	}
 
-	goeventsource.Record(a, AccountBalanceWasWithdrewV1{Amount: amount})
+	goeventsource.Record(a, AccountBalanceWasWithdrawnV1{Amount: amount})
 
 	return nil
 }
@@ -134,7 +134,7 @@ func (a *Account) WithdrawWithExchange(
 		return fmt.Errorf("%w: not enough balance", ErrAccountWithdraw)
 	}
 
-	goeventsource.Record(a, AccountBalanceCurrencyExchangeWasWithdrewV1{
+	goeventsource.Record(a, AccountBalanceCurrencyExchangeWasWithdrawnV1{
 		FromAmount:   fromAmount,
 		FromCurrency: fromCurrency,
 		Name:         name,
@@ -201,9 +201,9 @@ func (a *Account) Apply(ev goeventsource.DomainEvent) {
 		a.balance += e.Amount
 	case AccountBalanceCurrencyExchangeWasDepositedV1:
 		a.balance += e.ToAmount
-	case AccountBalanceWasWithdrewV1:
+	case AccountBalanceWasWithdrawnV1:
 		a.balance -= e.Amount
-	case AccountBalanceCurrencyExchangeWasWithdrewV1:
+	case AccountBalanceCurrencyExchangeWasWithdrawnV1:
 		a.balance -= e.ToAmount
 	case AccountWasClosedV1:
 		a.closedAt = e.ClosedAt

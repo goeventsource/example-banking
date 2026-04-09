@@ -2,6 +2,7 @@ package banking
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/Rhymond/go-money"
@@ -54,7 +55,11 @@ func (r *RootEncodeDecoder) Decode(data []byte, a **Account) error {
 
 	acc := r.factoryFn(accountJSON.ID, goeventsource.Version(accountJSON.Version))
 	acc.balance = money.Amount(accountJSON.Balance)
-	acc.currency = *money.GetCurrency(accountJSON.Currency)
+	cur := money.GetCurrency(accountJSON.Currency)
+	if cur == nil {
+		return fmt.Errorf("unknown currency code: %s", accountJSON.Currency)
+	}
+	acc.currency = *cur
 	acc.openedAt = accountJSON.OpenedAt
 	acc.activatedAt = accountJSON.ActivatedAt
 	acc.activatedBy = accountJSON.ActivatedBy

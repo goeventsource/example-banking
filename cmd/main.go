@@ -34,10 +34,10 @@ func domainEventCodecs() map[goeventsource.DomainEventName]goeventsource.DomainE
 		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasDepositedV1]()
 	m[banking.AccountBalanceCurrencyExchangeWasDepositedV1{}.DomainEventName()] =
 		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasDepositedV1]()
-	m[banking.AccountBalanceWasWithdrewV1{}.DomainEventName()] =
-		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasWithdrewV1]()
-	m[banking.AccountBalanceCurrencyExchangeWasWithdrewV1{}.DomainEventName()] =
-		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasWithdrewV1]()
+	m[banking.AccountBalanceWasWithdrawnV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceWasWithdrawnV1]()
+	m[banking.AccountBalanceCurrencyExchangeWasWithdrawnV1{}.DomainEventName()] =
+		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountBalanceCurrencyExchangeWasWithdrawnV1]()
 	m[banking.AccountWasClosedV1{}.DomainEventName()] =
 		goeventsource.NewJSONDomainEventEncodeDecoder[banking.AccountWasClosedV1]()
 	return m
